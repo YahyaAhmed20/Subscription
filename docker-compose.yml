@@ -1,0 +1,53 @@
+services:
+    djangoservice:
+        container_name: SNIPER_Django
+        build: .
+        command: python manage.py runserver 0.0.0.0:8000
+        volumes:
+            - .:/app
+            # media
+            - ./media:/app/media
+            # Static
+            - ./static:/app/static
+        ports:
+            - "8000:8000"
+
+        depends_on:
+            - redis
+        environment:
+        - CELERY_BROKER_URL=redis://redis:6379/0
+        - CELERY_RESULT_BACKEND=redis://redis:6379/0
+        restart: always
+    redis:
+        container_name: SNIPER_Redis
+        image: "redis:alpine"
+        ports:
+            - "6379:6379"
+        restart: always
+
+
+    celery:
+        container_name: SNIPER_Celery
+        build: .
+        command: celery -A project worker -l INFO --pool=solo
+        depends_on:
+            - djangoservice
+            - redis
+        environment:
+        - CELERY_BROKER_URL=redis://redis:6379/0
+        - CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+        restart: always
+
+
+    celery_beat:
+        container_name: SNIPER_CeleryBeat
+        build: .
+        command: celery -A project beat -l INFO
+        depends_on:
+            - redis
+            - djangoservice
+        environment:
+            - CELERY_BROKER_URL=redis://redis:6379/0
+            - CELERY_RESULT_BACKEND=redis://redis:6379/0
+        restart: always
