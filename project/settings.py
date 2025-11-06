@@ -133,12 +133,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 from celery.schedules import crontab
 
+from datetime import timedelta
+
 CELERY_BEAT_SCHEDULE = {
-    'check-payments-every-day': {
+    'check-payments-every-second': {
         'task': 'home.tasks.check_monthly_payments',
-        'schedule': crontab(hour=9, minute=0),  # كل يوم الساعة 9 صباحًا
+        'schedule': timedelta(seconds=1),  # كل ثانية
     },
 }
+
+
 
 
 # استخدام متغير البيئة اللي Railway ضافه تلقائيًا
