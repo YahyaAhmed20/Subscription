@@ -158,14 +158,13 @@ from celery.schedules import crontab
 
 from datetime import timedelta
 
+
 CELERY_BEAT_SCHEDULE = {
-    'check-payments-every-second': {
+    'check-payments-every-day': {
         'task': 'home.tasks.check_monthly_payments',
-        'schedule': timedelta(seconds=1),  # كل ثانية
+        'schedule': crontab(hour=9, minute=0),  # كل يوم الساعة 9 الصبح
     },
 }
-
-
 
 
 # استخدام متغير البيئة اللي Railway ضافه تلقائيًا
